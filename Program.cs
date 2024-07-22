@@ -61,6 +61,8 @@ app.UseAntiforgery( );
 app.MapRazorComponents<App>( )
     .AddInteractiveServerRenderMode( );
 
+
+
 // Add SignalR hub
 app.MapHub<ChatHub>( ChatHub.HubUrl );
 

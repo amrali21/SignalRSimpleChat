@@ -6,6 +6,7 @@ public class ChatHub : Hub
 {
     public const string HubUrl = "/chathub";
     public const string SendToAllClient = "SendToAllClient";
+    public static readonly Dictionary<string, string> ConnectedUsers = new Dictionary<string, string>();
 
     public override async Task OnConnectedAsync()
     {
@@ -16,4 +17,5 @@ public class ChatHub : Hub
     {
         await Clients.All.SendAsync( SendToAllClient, from, message);
     }
+
 }
