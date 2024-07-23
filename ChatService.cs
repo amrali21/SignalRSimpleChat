@@ -1,15 +1,22 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
+using System.Security.Claims;
 
 namespace SignalRSimpleChat;
 
-public class ChatService( ILogger<ChatService> logger ) : IAsyncDisposable
+public class ChatService( ILogger<ChatService> logger, AuthenticationStateProvider AuthenticationStateProvider) : IAsyncDisposable
 {
     private HubConnection _connection;
-
     private readonly ILogger _logger = logger;
+
+    private readonly AuthenticationStateProvider _authenticationStateProvider = AuthenticationStateProvider;
+    private ClaimsPrincipal User { get; set; }
 
     public async Task ConnectAsync()
     {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        User = authState.User;
+
         _connection = new HubConnectionBuilder()
             .WithUrl( $"https://localhost:44393{ChatHub.HubUrl}" )
             .Build();
@@ -22,6 +29,7 @@ public class ChatService( ILogger<ChatService> logger ) : IAsyncDisposable
         if ( _connection.State != HubConnectionState.Connected )
         {
             await _connection.StartAsync( );
+            ChatHub.AddUser(_connection.ConnectionId, User.Identity.Name);
         }
     }
 
@@ -31,17 +39,6 @@ public class ChatService( ILogger<ChatService> logger ) : IAsyncDisposable
     {
         var serverMethodName = nameof( ChatHub.SendToAll );
         await _connection.InvokeAsync( serverMethodName, sender, message );
-    }
-
-    public void AddUser(string id, string name)
-    {
-        if (ChatHub.ConnectedUsers.ContainsValue(name))
-            ChatHub.ConnectedUsers.Add(id, name);
-    }
-
-    public void RemoveUser(string id)
-    {
-        ChatHub.ConnectedUsers.Remove(id);
     }
 
     public async ValueTask DisposeAsync()
