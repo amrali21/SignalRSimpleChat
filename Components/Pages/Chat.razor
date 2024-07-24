@@ -1,6 +1,7 @@
 ﻿@page "/chat"
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Authorization
+@using SignalRSimpleChat.Components.Pages.Shared
 @attribute [Authorize]
 @inject ChatService ChatService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -28,12 +29,17 @@
                     @message
                 </div>
             }
-        </div>
+        </div >
 
+        <section class="position-absolute top-0 end-0 m-4">
+                <ConnectedUsers />
+        </section>
     </div>
 }
 
 @code {
+    Dictionary<string, string> Users = ChatHub.ConnectedUsers;
+
     private List<string> _messages = new( );
     private bool _isChatVisible = false;
 

@@ -1,0 +1,32 @@
+﻿ <style>
+    .user-list-container {
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+</style>
+
+<div class="container user-list-container my-5">
+    <h5 class="mb-4 fw-bold ">Connected Users</h5>
+
+<div class="list-group">
+@foreach (var user in @ChatHub.ConnectedUsers.Values.Distinct())
+{
+        <div class="user-item list-group-item list-group-item-action">
+            <div>
+                <h5 class="mb-1">
+                    @user
+                </h5>
+            </div>
+        </div>
+}
+</div>
+</div>
+@code {
+
+    protected override void OnInitialized()
+    {
+        ChatHub.UserJoinLeave += async (object sender, EventArgs e) =>
+                await InvokeAsync(StateHasChanged);
+    }
+}
